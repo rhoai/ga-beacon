@@ -77,7 +77,11 @@ func logHit(c appengine.Context, params []string, query url.Values, ua string, i
 
 	payload := url.Values{
 		"v":   {"1"},        // protocol version = 1
-		"t":   {"pageview"}, // hit type
+		"t":   {"event"},    // hit type TODO Make dynamic
+		"ec":  {"email"},    // category type TODO Make dynamic
+		"ea":  {"open"},     // action type TODO Make dynamic
+		"el":  {params[1]},  // event label
+		"dt":  {params[2]},  // document title
 		"tid": {params[0]},  // tracking / property ID
 		"cid": {cid},        // unique client ID (server generated UUID)
 		"dp":  {params[1]},  // page path
@@ -93,7 +97,7 @@ func logHit(c appengine.Context, params []string, query url.Values, ua string, i
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	params := strings.SplitN(strings.Trim(r.URL.Path, "/"), "/", 2)
+	params := strings.SplitN(strings.Trim(r.URL.Path, "/"), "/", 3)
 	query, _ := url.ParseQuery(r.URL.RawQuery)
 	refOrg := r.Header.Get("Referer")
 
@@ -110,7 +114,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			if len(referer) != 0 {
 				// if the useReferer is present and the referer information exists
 				//  the path is ignored and the beacon referer information is used instead.
-				params = strings.SplitN(strings.Trim(r.URL.Path, "/")+"/"+referer, "/", 2)
+				params = strings.SplitN(strings.Trim(r.URL.Path, "/")+"/"+referer, "/", 3)
 			}
 		}
 	}
